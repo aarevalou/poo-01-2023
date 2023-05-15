@@ -697,7 +697,12 @@ public class IConsola implements UserInterface {
         return entrada;
     }
 
-
-
+    public void inicio(int opcion) {
+	if(opcion == 1) {
+	    mostrarMenuPrincipal(Principal.getProductos());
+	} else {
+	    mostrarMenuPrincipalAdmin();
+	}
+    }
 }
 

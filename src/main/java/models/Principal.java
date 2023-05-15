@@ -58,9 +58,10 @@ public class Principal {
         productos.add(p3);
         productos.add(p4);
         productos.add(p5);
-
-        //consola.mostrarMenuPrincipal(productos);
-        consola.mostrarMenuPrincipalAdmin();
+        
+        
+	int opcion = consola.validarEntero("1) Inicar como Cliente, 2) Iniciar como Administrador", 2);
+        consola.inicio(opcion);
     }
 
     public static ArrayList<Producto> getProductos() {
