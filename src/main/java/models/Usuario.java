@@ -6,21 +6,19 @@ public class Usuario {
     private String nombre;
     private String email;
     private String password;
-    private boolean superUsuario;
     private String imagen;
 
     public Usuario(){}
 
-    public Usuario(String rut, String nonbre, String email, String password, boolean superUsuario, String imagen) {
+    public Usuario(String rut, String nombre, String email, String password, String imagen) {
         this.rut = rut;
-        this.nombre = nonbre;
+        this.nombre = nombre;
         this.email = email;
         this.password = password;
-        this.superUsuario = superUsuario;
         this.imagen = imagen;
     }
 
-    public String getId() {
+    public String getRut() {
         return rut;
     }
 
@@ -28,12 +26,12 @@ public class Usuario {
         this.rut = rut;
     }
 
-    public String getNonbre() {
+    public String getNombre() {
         return nombre;
     }
 
-    public void setNonbre(String nonbre) {
-        this.nombre = nonbre;
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
     }
 
     public String getEmail() {
@@ -52,13 +50,7 @@ public class Usuario {
         this.password = password;
     }
 
-    public boolean isSuperUsuario() {
-        return superUsuario;
-    }
 
-    public void setSuperUsuario(boolean superUsuario) {
-        this.superUsuario = superUsuario;
-    }
 
     public String getImagen() {
         return imagen;
@@ -68,11 +60,12 @@ public class Usuario {
         this.imagen = imagen;
     }
 
+
     public void iniciarSesion(){}
     public void crearCuenta(){}
-    public boolean validadPassword(String password){
+    public boolean verificarLogin(String email, String password){
 
-        if(this.password == password){
+        if(this.email.equals(email) && this.password.equals(password)){
             return true;
         }
         else {

@@ -1,21 +1,26 @@
 package models;
+import basedatos.GestorSQlite;
 import interfaces.UserInterface;
 
+import javax.imageio.stream.FileCacheImageInputStream;
+import javax.xml.parsers.SAXParser;
 import java.awt.print.PrinterIOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Scanner;
+import java.sql.SQLOutput;
+import java.util.*;
 
-public class IConsola implements UserInterface {
+public class IConsola {
 
     private static Scanner scanner = new Scanner(System.in);
-    @Override
-    public void mostrarMenuPrincipal(ArrayList<Producto> productos) {
+    private static ArrayList<String> marcas = GestorSQlite.obtenerMarcas();
+    private static ArrayList<String> categorias = GestorSQlite.obtenerCategorias();
+
+
+
+    public static void mostrarMenuPrincipal(ArrayList<Producto> productos) {
         int selec;
         ArrayList<Producto> p = productos;
 
-        mostrarTitulo("BIENVENIDO A LA TIENDA HARD-MUSIC !");
+        mostrarTitulo("BIENVENIDO A LA TIENDA HARMONY-SHOP !");
         selec = validarEntero("SELECCIONE UNA OPCIÓN...\n1) Ver todos los productos\n2) Buscar producto por nombre\n3) Buscar productos por categoria\n4) Ver carrito", 4);
 
         switch (selec){
@@ -38,16 +43,16 @@ public class IConsola implements UserInterface {
                 int categoria;
                 System.out.println("LAS CATEGORIAS SON LAS SIGUIENTES:");
                 System.out.println();
-                for (int i = 0; i < Principal.getCategorias().length; i++) {
-                    System.out.println((i+1) + ") " + Principal.getCategorias()[i]);
+                for (int i = 0; i < categorias.size(); i++) {
+                    System.out.println((i+1) + ") " + categorias.get(i));
                 }
-                categoria = validarEntero("SELECCIONE UNA CATEGORIA:",Principal.getCategorias().length);
+                categoria = validarEntero("SELECCIONE UNA CATEGORIA:",categorias.size());
                 p = GestorProductos.obtenerProductosPorCategoria(productos, categoria-1);
                 mostrarProductos(p);
                 break;
 
             case 4:
-                mostrarMenuCarrito(Principal.listaCarrito);
+                mostrarMenuCarrito(GestorUsuarios.clienteActual.getListaCarrito());
                 break;
             default:
                 mostrarInvalido();
@@ -55,11 +60,10 @@ public class IConsola implements UserInterface {
         }
 
         selec = validarEntero("PARA VER LOS DETALLES DE UN PRODUCTO, SELECCIONE SU ÍNDICE...", productos.size());
-        mostrarMenuDetalleProducto(p.get(selec-1), Principal.getCliente());
+        mostrarMenuDetalleProducto(p.get(selec-1));
     }
 
-    @Override
-    public void mostrarMenuDetalleProducto(Producto producto, Cliente cliente) {
+    public static void mostrarMenuDetalleProducto(Producto producto) {
 
         int input, cantidad;
         //Producto producto;
@@ -95,58 +99,58 @@ public class IConsola implements UserInterface {
         if (input==1) {
             cantidad = validarEntero("INGRESE LA CANTIDAD: ", 0);
             if(cantidad <= producto.getStock()){
-                if(cliente.getListaCarrito().contains(producto)) {
-                    int index = cliente.getListaCarrito().indexOf(producto);
-                    cliente.getListaCarrito().get(index).setCantidad(cantidad);
+                if(GestorUsuarios.clienteActual.getListaCarrito().contains(producto)) {
+                    int index = GestorUsuarios.clienteActual.getListaCarrito().indexOf(producto);
+                    GestorUsuarios.clienteActual.getListaCarrito().get(index).setCantidad(cantidad);
 
                     System.out.println("Se ha actualizado la cantidad del producto en el carrito!");
-                    mostrarMenuDetalleProducto(producto, cliente);
+                    mostrarMenuDetalleProducto(producto);
                 }
                 else{
-                    UnidadCarrito unidadCarrito = new UnidadCarrito(cliente, producto, cantidad, producto.getPrecio());
-                    Principal.listaCarrito.add(unidadCarrito);
+                    UnidadCarrito unidadCarrito = new UnidadCarrito(GestorUsuarios.clienteActual, producto, cantidad, producto.getPrecio());
+                    GestorUsuarios.clienteActual.getListaCarrito().add(unidadCarrito);
 
                     System.out.println("Se ha agregado el producto al carrito!");
-                    mostrarMenuDetalleProducto(producto, cliente);
+                    mostrarMenuDetalleProducto(producto);
                 }
             }
             else{
                 System.out.println("NO HAY SUFICIENTE STOCK DISPONIBLE!, VERIFIQUE LA DISPONIBILIDAD");
-                mostrarMenuDetalleProducto(producto, cliente);
+                mostrarMenuDetalleProducto(producto);
             }
         }
 
         if (input==2) {
             cantidad = validarEntero("INGRESE LA CANTIDAD: ",0);
-            if((cantidad <= producto.getStock()) && (cliente.getSaldo() >= (producto.getPrecio()*cantidad))) {
+            if((cantidad <= producto.getStock()) && (GestorUsuarios.clienteActual.getSaldo() >= (producto.getPrecio()*cantidad))) {
 
                 producto.setStock(producto.getStock() - cantidad);
-                cliente.setSaldo(cliente.getSaldo() - (producto.getPrecio() * cantidad));
-                Pedido p = cliente.crearPedido();
-                p.setCliente(Principal.getCliente());
-                p.addUnidadCarrito(new UnidadCarrito(cliente, producto, cantidad, producto.getPrecio()));
+                GestorUsuarios.clienteActual.setSaldo(GestorUsuarios.clienteActual.getSaldo() - (producto.getPrecio() * cantidad));
+                Pedido p = GestorUsuarios.clienteActual.crearPedido();
+                p.setCliente(GestorUsuarios.clienteActual);
+                p.addUnidadCarrito(new UnidadCarrito(GestorUsuarios.clienteActual, producto, cantidad, producto.getPrecio()));
                 p.setMetodoPago("Transfencia");
 
                 mostrarMenuPago(p);
 
             } else if (cantidad > producto.getStock()) {
                 System.out.println("NO HAY SUFICIENTE STOCK DISPONIBLE!, VERIFIQUE LA DISPONIBILIDAD");
-                mostrarMenuDetalleProducto(producto, cliente);
+                mostrarMenuDetalleProducto(producto);
 
-            } else if (cliente.getSaldo() < (producto.getPrecio()*cantidad)) {
+            } else if (GestorUsuarios.clienteActual.getSaldo() < (producto.getPrecio()*cantidad)) {
                 System.out.println("NO HAY SUFICIENTE SALDO DISPONIBLE!, VERIFIQUE SU SALDO");
-                mostrarMenuDetalleProducto(producto, cliente);
+                mostrarMenuDetalleProducto(producto);
             }
         }
 
         if (input==3) {
-            mostrarMenuPrincipal(Principal.getProductos());
+            mostrarMenuPrincipal(GestorProductos.getProductos());
         }
 
     }
 
-    @Override
-    public void mostrarMenuDetallePedido(Pedido pedido) {
+
+    public static void mostrarMenuDetallePedido(Pedido pedido) {
 
         System.out.println("------------ DETALLE FACTURA DE COMPRA -----------");
         System.out.println("Productos adquiridos:");
@@ -170,13 +174,13 @@ public class IConsola implements UserInterface {
         System.out.println("Total: " + pedido.getTotal());
     }
 
-    @Override
-    public void mostrarMenuUsuario(Cliente cliente) {
+
+    public static void mostrarMenuUsuario() {
 
         System.out.println("DATOS DEL USUARIO:");
-        System.out.println("Nombre: " + cliente.getNonbre());
-        System.out.println("Email: " + cliente.getEmail());
-        System.out.println("Dirección: " + cliente.getDireccionDespacho());
+        System.out.println("Nombre: " + GestorUsuarios.clienteActual.getNombre());
+        System.out.println("Email: " + GestorUsuarios.clienteActual.getEmail());
+        System.out.println("Dirección: " + GestorUsuarios.clienteActual.getDireccionDespacho());
         System.out.println();
         System.out.println("SELECCIONE ALGUNA OPCIÓN:");
         System.out.println("1) Modificar datos, 2) Cambiar contraseña, 3) Salir");
@@ -193,35 +197,35 @@ public class IConsola implements UserInterface {
             direccion = validarTexto("INGRESE SU DIRECCIÓN");
             password = validarTexto("*INGRESE SU CONTRASEÑA PARA CONFIRMAR:");
 
-            if(cliente.validadPassword(password))
+            if(GestorUsuarios.clienteActual.verificarLogin(email, password))
             {
-                cliente.setNonbre(nombre);
-                cliente.setNonbre(email);
-                cliente.setNonbre(direccion);
+                GestorUsuarios.clienteActual.setNombre(nombre);
+                GestorUsuarios.clienteActual.setNombre(email);
+                GestorUsuarios.clienteActual.setNombre(direccion);
                 System.out.println("DATOS DEL USUARIO MODIFICADOS CON EXITO!");
             }
             else{
                 System.out.println("ERROR, LA CONTRASEÑA ES INCORRECTA!");
-                mostrarMenuUsuario(cliente);
+                mostrarMenuUsuario();
             }
         }
 
         if (selec==2){
 
             password = validarTexto("INGRESE SU CONTRASEÑA ANTERIOR:");
-            if(cliente.validadPassword(password))
+            if(GestorUsuarios.clienteActual.verificarLogin(GestorUsuarios.clienteActual.getEmail(), password))
             {
                 String password1, password2;
                 password1 = validarTexto("INGRESE SU NUEVA CONTRASEÑA:");
                 password2 = validarTexto("VUELVA A INGRESARLA PARA CONFIRMAR:");
 
                 if(password1==password2){
-                    cliente.setPassword(password1);
+                    GestorUsuarios.clienteActual.setPassword(password1);
                     System.out.println("SU CONTRASEÑA HA SIDO CAMBIADA CON EXITO!");
                 }
                 else{
                     System.out.println("LAS CONTRASEÑAS INGRESADAS NO COINCIDEN!...");
-                    mostrarMenuUsuario(cliente);
+                    mostrarMenuUsuario();
                 }
 
             }
@@ -231,12 +235,12 @@ public class IConsola implements UserInterface {
         }
 
         if (selec==3){
-            mostrarMenuPrincipal(Principal.getProductos());
+            mostrarMenuPrincipal(GestorProductos.getProductos());
         }
     }
 
-    @Override
-    public void mostrarMenuCarrito(ArrayList<UnidadCarrito> carrito) {
+
+    public static void mostrarMenuCarrito(ArrayList<UnidadCarrito> carrito) {
 
         int total=0;
         int selec;
@@ -269,21 +273,21 @@ public class IConsola implements UserInterface {
             selec=0;
             System.out.println("EL CARRITO ESTÁ VACIO, OPRIMA CUALQUIER TECLA PARA SALIR...");
             scanner.nextLine();
-            mostrarMenuPrincipal(Principal.getProductos());
+            mostrarMenuPrincipal(GestorProductos.getProductos());
         }
 
         if(selec==1){
 
-            if(Principal.getCliente().getSaldo() >= total) {
+            if(GestorUsuarios.clienteActual.getSaldo() >= total) {
 
                 for (int i = 0; i < carrito.size(); i++) {
                     carrito.get(i).getProducto().setStock(carrito.get(i).getProducto().getStock() - 1);
                 }
-                Principal.getCliente().setSaldo(Principal.getCliente().getSaldo() - total);
+                GestorUsuarios.clienteActual.setSaldo(GestorUsuarios.clienteActual.getSaldo() - total);
                 Pedido p = new Pedido();
-                p = Principal.getCliente().crearPedido();
-                p.setCliente(Principal.getCliente());
-                p.setListaProductos(Principal.listaCarrito);
+                p = GestorUsuarios.clienteActual.crearPedido();
+                p.setCliente(GestorUsuarios.clienteActual);
+                p.setListaProductos(GestorUsuarios.clienteActual.getListaCarrito());
                 p.setMetodoPago("Transfencia");
 
                 mostrarMenuPago(p);
@@ -331,13 +335,13 @@ public class IConsola implements UserInterface {
 
         if(selec==4){
 
-            mostrarMenuPrincipal(Principal.getProductos());
+            mostrarMenuPrincipal(GestorProductos.getProductos());
         }
 
     }
 
-    @Override
-    public void mostrarMenuPago(Pedido pedido) {
+
+    public static void mostrarMenuPago(Pedido pedido) {
 
         int input;
 
@@ -352,7 +356,7 @@ public class IConsola implements UserInterface {
         System.out.println("  DATOS DEL CLIENTE:");
 
         System.out.format(borde);
-        System.out.format(formato, "Nombre : ", pedido.getCliente().getNonbre());
+        System.out.format(formato, "Nombre : ", pedido.getCliente().getNombre());
         System.out.format(borde);
         System.out.format(formato, "Email : ", pedido.getCliente().getEmail());
         System.out.format(borde);
@@ -366,7 +370,7 @@ public class IConsola implements UserInterface {
 
         int total=0;
         for (int i = 0; i < pedido.getListaProductos().size() ; i++) {
-            String marca = pedido.getListaProductos().get(i).getProducto().getMarca();
+            String marca = marcas.get(pedido.getListaProductos().get(i).getProducto().getMarca());
             String modelo = pedido.getListaProductos().get(i).getProducto().getModelo();
             int precio = pedido.getListaProductos().get(i).getProducto().getPrecio();
 
@@ -408,7 +412,7 @@ public class IConsola implements UserInterface {
                 continuar();
                 break;
             case 2:
-                mostrarMenuPrincipal(Principal.getProductos());
+                mostrarMenuPrincipal(GestorProductos.getProductos());
                 break;
             default:
                 mostrarInvalido();
@@ -431,7 +435,7 @@ public class IConsola implements UserInterface {
 
         for (int i = 0; i < productos.size(); i++) {
             System.out.format(borde);
-            System.out.format(formato, (i+1) + ") " + productos.get(i).getMarca(), productos.get(i).getModelo(), productos.get(i).getPrecio());
+            System.out.format(formato, (i+1) + ") " + marcas.get(productos.get(i).getMarca()-1), productos.get(i).getModelo(), productos.get(i).getPrecio());
         }
         System.out.format(borde, "");
     }
@@ -461,14 +465,14 @@ public class IConsola implements UserInterface {
         System.out.println("ENTRADA INVALIDA, POR FAVOR REINTENTE...");
     }
 
-    public void continuar() {
+    public static void continuar() {
         int input;
         System.out.println();
         input = validarEntero("DESEA SEGUIR EN LA TIENDA?\n1) SI, 2) NO", 2);
 
         switch (input) {
             case 1:
-                mostrarMenuPrincipal(Principal.getProductos());
+                mostrarMenuPrincipal(GestorProductos.getProductos());
                 break;
             case 2:
                 break;
@@ -478,14 +482,14 @@ public class IConsola implements UserInterface {
         }
     }
 
-    public void mostrarMenuPrincipalAdmin(){
+    public static void mostrarMenuPrincipalAdmin(){
         int selec;
         mostrarTitulo("MENU PRINCIPAL");
         selec = validarEntero("SELECCIONE UN ACCIÓN:\n1) Gestionar productos, 2) Gestionar pedidos, 3) Gestionar clientes, ", 3);
 
         if(selec==1) {
             System.out.println();
-            mostrarProductos(Principal.productos);
+            mostrarProductos(GestorProductos.productos);
             selec = validarEntero("SELECCIONE UNA OPCIÓN:\n1) Agregar producto, 2) Modificar producto, 3) Eliminar producto, 4) Salir", 4);
             if(selec==1){
                 mostrarMenuAgregarProducto();
@@ -502,31 +506,31 @@ public class IConsola implements UserInterface {
         }
     }
 
-    public void mostrarMenuAgregarProducto(){
+    public static void mostrarMenuAgregarProducto(){
 
         System.out.println();
         System.out.println("MARCAS:");
-        for (int i = 0; i < Principal.getMarcas().length; i++) {
-            System.out.println((i+1) + ") " + Principal.getMarcas()[i]);
+        for (int i = 0; i < marcas.size(); i++) {
+            System.out.println((i+1) + ") " + marcas.get(i));
         }
         System.out.println();
-        int marca_id = validarEntero("SELECCIONE LA MARCA DEL PRODUCTO SEGÚN LA LISTA ANTERIOR:", Principal.getMarcas().length);
-        String marca = Principal.getMarcas()[marca_id-1];
+        int marca_id = validarEntero("SELECCIONE LA MARCA DEL PRODUCTO SEGÚN LA LISTA ANTERIOR:", marcas.size());
+        String marca = marcas.get(marca_id-1);
         String modelo = validarTexto("INGRESE EL MODELO DEL PRODUCTO:");
 
         System.out.println();
         System.out.println("CATEGORÍAS:");
-        for (int i = 0; i < Principal.getCategorias().length; i++) {
-            System.out.println((i+1) + ") " + Principal.getCategorias()[i]);
+        for (int i = 0; i < categorias.size(); i++) {
+            System.out.println((i+1) + ") " + categorias.get(i));
         }
         System.out.println();
-        int categoria = validarEntero("SELECCIONE LA CATEGORIA DEL PRODUCTO SEGÚN LA LISTA ANTERIOR:", Principal.getMarcas().length);
+        int categoria = validarEntero("SELECCIONE LA CATEGORIA DEL PRODUCTO SEGÚN LA LISTA ANTERIOR:", categorias.size());
         int stock = validarEntero("INGRESE EL STOCK DEL PRODUCTO:", 0);
         int precio = validarEntero("INGRESE EL PRECIO DEL PRODUCTO:", 0);
 
         Producto p = new Producto();
 
-        p.setMarca(marca);
+        p.setMarca(marca_id);
         p.setModelo(modelo);
         p.setCategoria(categoria);
         p.setStock(stock);
@@ -553,37 +557,41 @@ public class IConsola implements UserInterface {
         System.out.println("HA AGREGADO EL PRODUCTO CON EXITO!");
         System.out.println();
 
-        Principal.getProductos().add(p);
+        GestorProductos.getProductos().add(p);
+        GestorSQlite.insertarProducto(p);
         mostrarMenuPrincipalAdmin();
     }
 
-    public void mostrarMenuModificarProducto(){
+    public static void mostrarMenuModificarProducto(){
+
+        ArrayList<String> marcas = GestorSQlite.obtenerMarcas();
         int indice;
-        indice = validarEntero("INGRESE EL ÍNDICE DEL PRODUCTO QUE DECEA MODIFICAR", Principal.getProductos().size());
+
+        indice = validarEntero("INGRESE EL ÍNDICE DEL PRODUCTO QUE DECEA MODIFICAR", GestorProductos.getProductos().size());
 
         System.out.println();
         System.out.println("MARCAS:");
-        for (int i = 0; i < Principal.getMarcas().length; i++) {
-            System.out.println((i+1) + ") " + Principal.getMarcas()[i]);
+        for (int i = 0; i < marcas.size(); i++) {
+            System.out.println((i+1) + ") " + marcas.get(i));
         }
         System.out.println();
-        int marca_id = validarEntero("SELECCIONE LA MARCA DEL PRODUCTO SEGÚN LA LISTA ANTERIOR:", Principal.getMarcas().length);
-        String marca = Principal.getMarcas()[marca_id-1];
+        int marca_id = validarEntero("SELECCIONE LA MARCA DEL PRODUCTO SEGÚN LA LISTA ANTERIOR:", marcas.size());
+        String marca = marcas.get(marca_id-1);
         String modelo = validarTexto("INGRESE EL MODELO DEL PRODUCTO:");
 
         System.out.println();
         System.out.println("CATEGORÍAS:");
-        for (int i = 0; i < Principal.getCategorias().length; i++) {
-            System.out.println((i+1) + ") " + Principal.getCategorias()[i]);
+        for (int i = 0; i < categorias.size(); i++) {
+            System.out.println((i+1) + ") " + categorias.get(i));
         }
         System.out.println();
-        int categoria = validarEntero("SELECCIONE LA CATEGORIA DEL PRODUCTO SEGÚN LA LISTA ANTERIOR:", Principal.getMarcas().length);
+        int categoria = validarEntero("SELECCIONE LA CATEGORIA DEL PRODUCTO SEGÚN LA LISTA ANTERIOR:", marcas.size());
         int stock = validarEntero("INGRESE EL STOCK DEL PRODUCTO:", 0);
         int precio = validarEntero("INGRESE EL PRECIO DEL PRODUCTO:", 0);
 
-        Producto p = Principal.getProductos().get(indice-1);
+        Producto p = GestorProductos.getProductos().get(indice-1);
 
-        p.setMarca(marca);
+        p.setMarca(marca_id);
         p.setModelo(modelo);
         p.setCategoria(categoria);
         p.setStock(stock);
@@ -633,19 +641,19 @@ public class IConsola implements UserInterface {
         System.out.println("HA MODIFICADO EL PRODUCTO CON EXITO!");
         System.out.println();
 
-        Principal.getProductos().get(indice-1).equals(p);
+        GestorProductos.getProductos().get(indice-1).equals(p);
         mostrarMenuPrincipalAdmin();
     }
 
-    public void mostrarMenuEliminarProducto(){
+    public static void mostrarMenuEliminarProducto(){
 
     }
 
-    public void mostrarMenuModificarPedido(Pedido pedido){
+    public static void mostrarMenuModificarPedido(Pedido pedido){
 
     }
 
-    public void mostrarMenuModificarCliente(Cliente cliente){
+    public static void mostrarMenuModificarCliente(){
 
     }
 
@@ -697,7 +705,92 @@ public class IConsola implements UserInterface {
         return entrada;
     }
 
+    public static void mostrarMenuLogin() {
+        System.out.println();
+        System.out.println("BIENVENIDO A HARMONY SHOP!");
+        int opcion = validarEntero("SELECCIONE UNA OPCIÓN\n1) Para iniciar sesión, 2) Para crear cuenta, 3) Para ingresar como invitado", 3);
 
+        if(opcion==1){
+            String email = validarTexto("INGRESE SU EMAIL:");
+            String password = validarTexto("INGRESE SU CONTRASEÑA:");
 
+            Cliente cliente = GestorSQlite.obtenerCliente(email, password);
+            Admin admin = GestorSQlite.obtenerAdmin(email, password);
+
+            if (cliente!=null){
+                GestorUsuarios.clienteActual = cliente;
+                mostrarMenuPrincipal(GestorProductos.productos);
+            }
+
+            else if(admin!=null){
+                GestorUsuarios.adminActual = admin;
+                mostrarMenuPrincipalAdmin();
+            }
+
+            /*for (Usuario usuario : usuarios) {
+                if (usuario instanceof Cliente && usuario.verificarLogin(email, password)) {
+                    GestorUsuarios.clienteActual = (Cliente) usuario;
+                    mostrarMenuPrincipal(Principal.getProductos());
+                    break;
+                }
+                if (usuario instanceof Admin && usuario.verificarLogin(email, password)) {
+                    GestorUsuarios.adminActual = (Admin) usuario;
+                    mostrarMenuPrincipalAdmin();
+                    break;
+                }
+            }*/
+            System.out.println("NO SE HA ENCONTRADO UN USUARIO REGISTRADO, REINTENTE...");
+            mostrarMenuLogin();
+        }
+
+        if(opcion==2){
+            int tipoUsuario = validarEntero("SELECCIONE UNA OPCIÓN\n1) Cliente, 2) Administrador", 2);
+
+            String rut = menuValidarRut();
+            String nombre = validarTexto("INGRESE SU NOMBRE:");
+            String email = validarTexto("INGRESE SU EMAIL:");
+            String password = validarTexto("INGRESE SU CONTRASEÑA:");
+
+            if(tipoUsuario==1)
+            {
+                //String direccion = validarTexto("INGRESE SU DIRECCIÓN PARA DESPACHOS");
+                int saldo = validarEntero("INGRESE EL SALDO VIRTUAL QUE DISPONE:", 0);
+                Cliente cliente = new Cliente(rut, nombre, email, password, "asdf","", saldo,  new ArrayList<>(), new ArrayList<>());
+                GestorUsuarios.addUsuario(cliente);
+                GestorSQlite.insertarCliente(cliente);
+                System.out.println("CLIENTE " + nombre.toUpperCase() + " CREADO CON EXITO !");
+                mostrarMenuPrincipal(GestorProductos.getProductos());
+            }
+            if(tipoUsuario==2)
+            {
+                Admin admin = new Admin(rut, nombre, email,password, "asdf", "Administrador de productos", GestorUsuarios.obtenerFechaActual());
+                GestorUsuarios.addUsuario(admin);
+                GestorSQlite.insertarAdmin(admin);
+                System.out.println("ADMIN " + nombre.toUpperCase() + " CREADO CON EXITO !");
+                mostrarMenuPrincipalAdmin();
+            }
+        }
+
+        if(opcion==3){
+
+            int saldo = validarEntero("INGRESE EL SALDO QUE DISPONE:",0);
+            Cliente cliente = new Cliente();
+            cliente.setSaldo(saldo);
+            GestorUsuarios.addUsuario(cliente);
+            mostrarMenuPrincipal(GestorProductos.getProductos());
+        }
+
+    }
+
+    private static String menuValidarRut(){
+        System.out.println("INGRESE SU RUT:");
+        String rut = scanner.nextLine();
+        if(GestorUsuarios.validarRut(rut)==false)
+        {
+            System.out.println("EL RUT INGRESADO ES INVALIDO!, REINTENTE");
+            menuValidarRut();
+        }
+        return rut;
+    }
 }
 

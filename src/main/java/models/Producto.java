@@ -5,18 +5,18 @@ import java.util.HashMap;
 public class Producto {
 
     private int id;
-    private String marca;
+    private int marca;
     private String modelo;
     private int precio;
     private int stock;
     private String imagen;
     private int categoria;
-    private HashMap atributosExtras;
+    private HashMap atributosExtras = new HashMap();
 
 
     public Producto(){}
 
-    public Producto(int id, String marca, String modelo, int precio, int stock, String imagen, int categoria, HashMap atributosExtras) {
+    public Producto(int id, int marca, String modelo, int precio, int stock, String imagen, int categoria, HashMap atributosExtras) {
         this.id = id;
         this.marca = marca;
         this.modelo = modelo;
@@ -35,11 +35,11 @@ public class Producto {
         this.id = id;
     }
 
-    public String getMarca() {
+    public int getMarca() {
         return marca;
     }
 
-    public void setMarca(String marca) {
+    public void setMarca(int marca) {
         this.marca = marca;
     }
 
@@ -87,8 +87,8 @@ public class Producto {
         return atributosExtras;
     }
 
-    public void setAtributos(String descripcion) {
-        this.atributosExtras = atributosExtras;
+    public void setAtributos(HashMap atributos) {
+        this.atributosExtras = atributos;
     }
 
     public boolean verificarStock(){

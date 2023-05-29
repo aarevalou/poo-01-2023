@@ -1,12 +1,24 @@
 package models;
 
+import basedatos.GestorSQlite;
+
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Comparator;
 
 public class GestorProductos {
 
-    private static ArrayList<Producto> listaFiltrada = new ArrayList<>();
+    public static ArrayList<Producto> productos = new ArrayList<>();
 
+    public static ArrayList<Producto> getProductos() {
+        return productos;
+    }
+
+    public static void setProductos(ArrayList<Producto> productos) {
+        GestorProductos.productos = productos;
+    }
+
+    private static ArrayList<Producto> listaFiltrada = new ArrayList<>();
     public static ArrayList<Producto> obtenerProductosPorCategoria(ArrayList<Producto> productos, int categoria){
 
         listaFiltrada.clear();
@@ -22,7 +34,7 @@ public class GestorProductos {
         Producto producto = productos.get(indice-1);
         return producto;
     }
-    public static ArrayList<Producto> obtenerProductosPorMarca(ArrayList<Producto> productos, String marca){
+    public static ArrayList<Producto> obtenerProductosPorMarca(ArrayList<Producto> productos, int marca){
 
         listaFiltrada.clear();
         for (int i = 0; i < productos.size(); i++) {
@@ -68,8 +80,9 @@ public class GestorProductos {
         listaFiltrada.clear();
         int distancia=4;
 
+
         for (int i = 0; i < productos.size(); i++) {
-            String marca = productos.get(i).getMarca();
+            String marca = GestorSQlite.obtenerMarca(productos.get(i).getMarca());
             String modelo = productos.get(i).getModelo();
             String nombre = marca + " " + modelo;
 

@@ -21,7 +21,7 @@ public class Pedido {
                 "Metodo de pago: " + metodoPago +
                 "Despacho: " + despacho +
                 "------- DATOS DEL CLIENTE -------" +
-                "Nombre: " + cliente.getNonbre() +
+                "Nombre: " + cliente.getNombre() +
                 "Correo:" + cliente.getEmail() +
                 "Direccion: " + cliente.getDireccionDespacho() +
                 "------- DETALLE DE ARTICULOS -------" +
@@ -33,13 +33,14 @@ public class Pedido {
 
     public Pedido(){}
 
-    public Pedido(Cliente cliente, String fechaCreacion, ArrayList<UnidadCarrito> listaProductos, String metodoPago, Despacho despacho) {
+    public Pedido(int id, Cliente cliente, String fechaCreacion, String metodoPago, Despacho despacho, ArrayList<UnidadCarrito> listaProductos, int total) {
         this.id = id;
         this.cliente = cliente;
         this.fechaCreacion = fechaCreacion;
         this.listaProductos = listaProductos;
         this.metodoPago = metodoPago;
         this.despacho = despacho;
+        this.total = total;
     }
 
     public int getId() {
@@ -125,7 +126,7 @@ public class Pedido {
                             "\n" + "Metodo de pago: " + metodoPago +
                             "\n" + "Despacho: " + despacho +
                             "\n" + "------- DATOS DEL CLIENTE -------" +
-                            "\n" + "Nombre: " + cliente.getNonbre() +
+                            "\n" + "Nombre: " + cliente.getNombre() +
                             "\n" + "Correo:" + cliente.getEmail() +
                             "\n" + "Direccion: " + cliente.getDireccionDespacho() +
                             "\n" + "------- DETALLE DE ARTICULOS -------" +

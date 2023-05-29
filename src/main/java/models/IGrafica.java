@@ -10,22 +10,27 @@ public class IGrafica implements UserInterface {
     public void mostrarMenuPrincipal(ArrayList<Producto> productos) {
 
     }
+
     @Override
-    public void mostrarMenuDetalleProducto(Producto producto, Cliente cliente) {
+    public void mostrarMenuDetalleProducto(Producto producto) {
 
     }
+
     @Override
     public void mostrarMenuDetallePedido(Pedido pedido) {
 
     }
+
     @Override
-    public void mostrarMenuUsuario(Cliente cliente) {
+    public void mostrarMenuUsuario() {
 
     }
+
     @Override
     public void mostrarMenuCarrito(ArrayList<UnidadCarrito> carrito) {
 
     }
+
     @Override
     public void mostrarMenuPago(Pedido pedido) {
 

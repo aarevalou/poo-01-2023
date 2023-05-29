@@ -11,11 +11,11 @@ public interface UserInterface {
 
     public void mostrarMenuPrincipal(ArrayList<Producto> productos);
 
-    public void mostrarMenuDetalleProducto(Producto producto, Cliente cliente);
+    public void mostrarMenuDetalleProducto(Producto producto);
 
     public void mostrarMenuDetallePedido(Pedido pedido);
 
-    public void mostrarMenuUsuario(Cliente cliente);
+    public void mostrarMenuUsuario();
 
     public void mostrarMenuCarrito(ArrayList<UnidadCarrito> carrito);
 

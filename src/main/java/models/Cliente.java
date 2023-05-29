@@ -16,14 +16,12 @@ public class Cliente extends Usuario {
 
     public Cliente(){}
 
-    public Cliente(String direccionDespacho, ArrayList<Pedido> pedidos, ArrayList<UnidadCarrito> listaCarrito) {
-        this.direccion = direccionDespacho;
-        this.pedidos = pedidos;
-        this.listaCarrito = listaCarrito;
+    public Cliente(Usuario usuario){
+        super(usuario.getRut(), usuario.getNombre(), usuario.getEmail(), usuario.getPassword(), usuario.getImagen());
     }
 
-    public Cliente(String rut, String nonbre, String email, String password, boolean superUsuario, String imagen, String direccionDespacho, int saldo, int costoDespacho, ArrayList<Pedido> pedidos, ArrayList<UnidadCarrito> listaCarrito) {
-        super(rut, nonbre, email, password, superUsuario, imagen);
+    public Cliente(String rut, String nonbre, String email, String password, String imagen, String direccionDespacho, int saldo, ArrayList<Pedido> pedidos, ArrayList<UnidadCarrito> listaCarrito) {
+        super(rut, nonbre, email, password, imagen);
         this.direccion = direccionDespacho;
         this.saldo = saldo;
         this.pedidos = pedidos;
@@ -82,7 +80,7 @@ public class Cliente extends Usuario {
         Despacho despacho = new Despacho("Envio por Chilexpress", 0, "Boldo 10143", "La Florida", "Metropolitana");
         pedido.setCliente(this);
         pedido.setFechaCreacion(fechaFormateada);
-        pedido.setListaProductos(Principal.listaCarrito);
+        pedido.setListaProductos(GestorUsuarios.clienteActual.getListaCarrito());
         pedido.setDespacho(despacho);
         pedido.setMetodoPago(despacho.getMetodoDespacho());
         pedido.setDespacho(despacho);
@@ -90,7 +88,6 @@ public class Cliente extends Usuario {
 
         return pedido;
     }
-
 
     public void addPedidos(Pedido pedido){
         this.pedidos.add(pedido);
@@ -101,5 +98,10 @@ public class Cliente extends Usuario {
             nuevaLista.add(listaCarrito.get(i).getProducto());
         }
         return nuevaLista;
+    }
+
+    @Override
+    public boolean verificarLogin(String email, String password) {
+        return super.verificarLogin(email, password);
     }
 }
