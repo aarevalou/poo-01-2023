@@ -1,15 +1,14 @@
 
 ------- DATOS DEL PEDIDO -------
 Numero de pedido: 0
-Fecha de creación: 28/05/2023
+Fecha de creación: 04/06/2023
 Metodo de pago: Transfencia
-Despacho: models.Despacho@26ba2a48
+Despacho: models.Despacho@5f2050f6
 ------- DATOS DEL CLIENTE -------
 Nombre: Alejandro Arévalo Carrillo
 Correo:email1
 Direccion: tubul 81
 ------- DETALLE DE ARTICULOS -------
 
-Beyerdynamic DT-770 Pro 80 Ohm     Cantidad: 1      Precio unitario: 170000
-KRK Rokit RP5 G4     Cantidad: 5      Precio unitario: 150000
-Total: 320000
+1 DT-770 Pro 80 Ohm     Cantidad: 1      Precio unitario: 170000
+Total: 0

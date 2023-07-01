@@ -1,10 +1,15 @@
-package models;
+package controller;
+
+import models.Admin;
+import models.Cliente;
+import models.Usuario;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 
-public class GestorUsuarios {
+public abstract class GestorUsuarios {
 
     public static Cliente clienteActual;
     public static Admin adminActual;
@@ -20,32 +25,35 @@ public class GestorUsuarios {
         return fechaActual.format(formatter);
     }
 
-    public static boolean validarRut(String rut) {
-        // Remover puntos y guión del RUT
-        rut = rut.replace(".", "").replace("-", "");
+    public static Usuario iniciarSesion(String email, String password) {
+        HashMap<String, String> atributosUsuario = GestorSQlite.obtenerRegistro("Cliente", "email,password", email + "," + password);
+        if (!atributosUsuario.isEmpty()) {
+            return (Cliente) GestorObjeto.construirObjeto(new Cliente(), atributosUsuario);
+        }
+        atributosUsuario = GestorSQlite.obtenerRegistro("Admin", "email,password", email + "," + password);
+        if (!atributosUsuario.isEmpty()) {
+            return (Admin) GestorObjeto.construirObjeto(new Admin(), atributosUsuario);
+        }
+        return null;
+    }
 
-        // Validar longitud mínima del RUT
+    public static boolean validarRut(String rut) {
+        rut = rut.replace(".", "").replace("-", "");
         if (rut.length() < 9) {
             return false;
         }
 
-        // Separar dígito verificador del RUT
         char dv = rut.charAt(rut.length() - 1);
         String rutNumeros = rut.substring(0, rut.length() - 1);
 
         try {
-            // Validar que los caracteres restantes sean solo dígitos
             int rutParsed = Integer.parseInt(rutNumeros);
-
-            // Calcular dígito verificador esperado
             int m = 0, s = 1;
             for (; rutParsed != 0; rutParsed /= 10) {
                 s = (s + rutParsed % 10 * (9 - m++ % 6)) % 11;
             }
+            char dvEsperado = (char) (s != 0 ? s + 47 : 75);
 
-            char dvEsperado = (char) (s != 0 ? s + 47 : 75); // Conversión ASCII
-
-            // Comparar dígito verificador esperado con el recibido
             return Character.toUpperCase(dv) == Character.toUpperCase(dvEsperado);
         } catch (NumberFormatException e) {
             return false;

@@ -3,29 +3,26 @@ package models;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Cliente extends Usuario {
 
-    private String numeroTelefono;
     private String direccion;
     private int saldo;
     private ArrayList<Pedido> pedidos = new ArrayList<>();
-    private ArrayList<UnidadCarrito> listaCarrito = new ArrayList<>();
-
+    private Carrito carrito;
 
 
     public Cliente(){}
 
     public Cliente(Usuario usuario){
-        super(usuario.getRut(), usuario.getNombre(), usuario.getEmail(), usuario.getPassword(), usuario.getImagen());
+        super(usuario.getRut(), usuario.getNombre(), usuario.getEmail(), usuario.getPassword(), usuario.getImagen(), usuario.getDireccion());
     }
 
-    public Cliente(String rut, String nonbre, String email, String password, String imagen, String direccionDespacho, int saldo, ArrayList<Pedido> pedidos, ArrayList<UnidadCarrito> listaCarrito) {
-        super(rut, nonbre, email, password, imagen);
-        this.direccion = direccionDespacho;
+    public Cliente(String rut, String nonbre, String email, String password, String imagen, String direccion, int saldo) {
+        super(rut, nonbre, email, password, imagen, direccion);
+        this.direccion = direccion;
         this.saldo = saldo;
-        this.pedidos = pedidos;
-        this.listaCarrito = listaCarrito;
     }
 
     public String getDireccionDespacho() {
@@ -48,25 +45,25 @@ public class Cliente extends Usuario {
         this.pedidos = pedidos;
     }
 
-    public ArrayList<UnidadCarrito> getListaCarrito() {
-        return listaCarrito;
+    public Carrito getCarrito() {
+        return carrito;
     }
 
-    public void setListaCarrito(ArrayList<UnidadCarrito> listaCarrito) {
-        this.listaCarrito = listaCarrito;
+    public void setCarrito(Carrito carrito) {
+        this.carrito = carrito;
     }
 
 
     public void vaciarCarrito(){
-        this.listaCarrito.clear();
+        this.carrito.equals(null);
     }
 
-    public void eliminarUnidadCarrito(UnidadCarrito unidad){
-        this.listaCarrito.remove(unidad);
+    public void eliminarUnidadCarrito(Carrito unidad){
+        this.carrito.getProductos().remove(unidad);
     }
 
-    public void agregarUnidadCarrito(UnidadCarrito unidad){
-        this.listaCarrito.add(unidad);
+    public void agregarUnidadCarrito(Producto unidad, int cantidad){
+        this.carrito.getProductos().put(unidad, cantidad);
     }
 
     public Pedido crearPedido(){
@@ -80,7 +77,6 @@ public class Cliente extends Usuario {
         Despacho despacho = new Despacho("Envio por Chilexpress", 0, "Boldo 10143", "La Florida", "Metropolitana");
         pedido.setCliente(this);
         pedido.setFechaCreacion(fechaFormateada);
-        pedido.setListaProductos(GestorUsuarios.clienteActual.getListaCarrito());
         pedido.setDespacho(despacho);
         pedido.setMetodoPago(despacho.getMetodoDespacho());
         pedido.setDespacho(despacho);
@@ -92,16 +88,70 @@ public class Cliente extends Usuario {
     public void addPedidos(Pedido pedido){
         this.pedidos.add(pedido);
     }
-    private ArrayList<Producto> obtenerProductosCarrito(){
-        ArrayList<Producto> nuevaLista = new ArrayList<>();
-        for (int i = 0; i < listaCarrito.size(); i++) {
-            nuevaLista.add(listaCarrito.get(i).getProducto());
-        }
-        return nuevaLista;
+    @Override
+    public String getRut() {
+        return super.getRut();
+    }
+
+    @Override
+    public void setRut(String rut) {
+        super.setRut(rut);
+    }
+
+    @Override
+    public String getNombre() {
+        return super.getNombre();
+    }
+
+    @Override
+    public void setNombre(String nombre) {
+        super.setNombre(nombre);
+    }
+
+    @Override
+    public String getEmail() {
+        return super.getEmail();
+    }
+
+    @Override
+    public void setEmail(String email) {
+        super.setEmail(email);
+    }
+
+    @Override
+    public String getPassword() {
+        return super.getPassword();
+    }
+
+    @Override
+    public void setPassword(String password) {
+        super.setPassword(password);
+    }
+
+    @Override
+    public String getImagen() {
+        return super.getImagen();
+    }
+
+    @Override
+    public void setImagen(String imagen) {
+        super.setImagen(imagen);
+    }
+
+    @Override
+    public String getDireccion() {
+        return super.getDireccion();
+    }
+
+    @Override
+    public void setDireccion(String direccion) {
+        super.setDireccion(direccion);
     }
 
     @Override
     public boolean verificarLogin(String email, String password) {
         return super.verificarLogin(email, password);
     }
+
+
 }

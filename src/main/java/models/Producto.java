@@ -5,25 +5,25 @@ import java.util.HashMap;
 public class Producto {
 
     private int id;
-    private int marca;
+    private int marca_id;
     private String modelo;
     private int precio;
     private int stock;
     private String imagen;
-    private int categoria;
-    private HashMap atributosExtras = new HashMap();
+    private int categoria_id;
+    private HashMap atributosExtras = new HashMap<>();
 
 
     public Producto(){}
 
     public Producto(int id, int marca, String modelo, int precio, int stock, String imagen, int categoria, HashMap atributosExtras) {
         this.id = id;
-        this.marca = marca;
+        this.marca_id = marca;
         this.modelo = modelo;
         this.precio = precio;
         this.stock = stock;
         this.imagen = imagen;
-        this.categoria = categoria;
+        this.categoria_id = categoria;
         this.atributosExtras = atributosExtras;
     }
 
@@ -35,12 +35,12 @@ public class Producto {
         this.id = id;
     }
 
-    public int getMarca() {
-        return marca;
+    public int getMarca_id() {
+        return marca_id;
     }
 
-    public void setMarca(int marca) {
-        this.marca = marca;
+    public void setMarca_id(int marca_id) {
+        this.marca_id = marca_id;
     }
 
     public String getModelo() {
@@ -75,17 +75,15 @@ public class Producto {
         this.imagen = imagen;
     }
 
-    public int getCategoria() {
-        return categoria;
+    public int getCategoria_id() {
+        return categoria_id;
     }
 
-    public void setCategoria(int categoria) {
-        this.categoria = categoria;
+    public void setCategoria_id(int categoria_id) {
+        this.categoria_id = categoria_id;
     }
 
-    public HashMap getAtributos() {
-        return atributosExtras;
-    }
+    public HashMap getAtributos() { return atributosExtras;}
 
     public void setAtributos(HashMap atributos) {
         this.atributosExtras = atributos;
@@ -101,14 +99,14 @@ public class Producto {
         }
     }
 
-    public void addSpec(String clave, String valor){
-        atributosExtras.put(clave, valor);
+    public void addSpec(int atributo_id, String valor){
+        atributosExtras.put(atributo_id, valor);
     }
 
     @Override
     public String toString() {
         return "Producto{" +
-                ", marca='" + marca + '\'' +
+                ", marca='" + marca_id + '\'' +
                 ", modelo='" + modelo + '\'' +
                 ", precio=" + precio +
                 ", stock=" + stock +

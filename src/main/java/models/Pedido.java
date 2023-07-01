@@ -2,14 +2,13 @@ package models;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 
 public class Pedido {
 
     private int id;
     private Cliente cliente;
     private String fechaCreacion;
-    private ArrayList<UnidadCarrito> listaProductos;
+    private Carrito carrito;
     private Despacho despacho;
     private String metodoPago;
     private int total;
@@ -33,11 +32,11 @@ public class Pedido {
 
     public Pedido(){}
 
-    public Pedido(int id, Cliente cliente, String fechaCreacion, String metodoPago, Despacho despacho, ArrayList<UnidadCarrito> listaProductos, int total) {
+    public Pedido(int id, Cliente cliente, String fechaCreacion, String metodoPago, Despacho despacho, Carrito listaProductos, int total) {
         this.id = id;
         this.cliente = cliente;
         this.fechaCreacion = fechaCreacion;
-        this.listaProductos = listaProductos;
+        this.carrito = listaProductos;
         this.metodoPago = metodoPago;
         this.despacho = despacho;
         this.total = total;
@@ -67,12 +66,12 @@ public class Pedido {
         this.fechaCreacion = fechaCreacion;
     }
 
-    public ArrayList<UnidadCarrito> getListaProductos() {
-        return listaProductos;
+    public Carrito getCarrito() {
+        return carrito;
     }
 
-    public void setListaProductos(ArrayList<UnidadCarrito> listaProductos) {
-        this.listaProductos = listaProductos;
+    public void setCarrito(Carrito carrito) {
+        this.carrito = carrito;
     }
 
     public String getMetodoPago() {
@@ -101,15 +100,8 @@ public class Pedido {
 
 
     public int obtenerTotal(){
-        int total=0;
-        for (int i = 0; i < listaProductos.size(); i++) {
-            total += listaProductos.get(i).getProducto().getPrecio();
-        }
+        int total = carrito.calcularPrecioTotal() + despacho.getCostoDespacho();
         return total;
-    }
-
-    public void addUnidadCarrito(UnidadCarrito unidadCarrito){
-        this.listaProductos.add(unidadCarrito);
     }
 
     public void generarFactura(){
@@ -130,7 +122,7 @@ public class Pedido {
                             "\n" + "Correo:" + cliente.getEmail() +
                             "\n" + "Direccion: " + cliente.getDireccionDespacho() +
                             "\n" + "------- DETALLE DE ARTICULOS -------" +
-                            "\n" + detalleProductos() +
+                            "\n" + agregarDetallesProductos() +
                             "\n" + "Total: " + total);
 
             writer.close();
@@ -142,15 +134,15 @@ public class Pedido {
         }
     }
 
-    private String detalleProductos(){
+    private String agregarDetallesProductos(){
         String detalle="";
-        for (int i = 0; i < listaProductos.size(); i++) {
+        /*for (int i = 0; i < listaProductos.size(); i++) {
 
-            detalle += "\n" + listaProductos.get(i).getProducto().getMarca() + " " +
+            detalle += "\n" + listaProductos.get(i).getProducto().getMarca_id() + " " +
                        listaProductos.get(i).getProducto().getModelo() + "     Cantidad: " +
                        listaProductos.get(i).getCantidad() + "      Precio unitario: " +
                        listaProductos.get(i).getPrecioUnitario();
-        }
+        }*/
         return detalle;
     }
 

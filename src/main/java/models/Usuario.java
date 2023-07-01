@@ -1,28 +1,30 @@
 package models;
 
-public class Usuario {
+public abstract class Usuario {
 
     private String rut;
     private String nombre;
     private String email;
     private String password;
+    private String direccion;
     private String imagen;
 
     public Usuario(){}
 
-    public Usuario(String rut, String nombre, String email, String password, String imagen) {
+    public Usuario(String rut, String nombre, String email, String password, String imagen, String direccion) {
         this.rut = rut;
         this.nombre = nombre;
         this.email = email;
         this.password = password;
         this.imagen = imagen;
+        this.direccion = direccion;
     }
 
     public String getRut() {
         return rut;
     }
 
-    public void setId(String rut) {
+    public void setRut(String rut) {
         this.rut = rut;
     }
 
@@ -60,6 +62,13 @@ public class Usuario {
         this.imagen = imagen;
     }
 
+    public String getDireccion() {
+        return direccion;
+    }
+
+    public void setDireccion(String direccion) {
+        this.direccion = direccion;
+    }
 
     public void iniciarSesion(){}
     public void crearCuenta(){}
@@ -72,5 +81,4 @@ public class Usuario {
             return false;
         }
     }
-    public void cerrarSesion(){}
 }
